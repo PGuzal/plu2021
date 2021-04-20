@@ -20,47 +20,39 @@ class HelloResp(BaseModel):
 def root():
     return {"message": "Hello world!"}
 
-
-@app.get("/counter")
-def counter():
-    app.counter += 1
-    return app.counter
-
-
-@app.get("/hello/{name}", response_model=HelloResp)
-def hello_name_view(name: str):
-    return HelloResp(msg=f"Hello {name}")
-
-
-@app.put("/method")
-def method():
+@app.put("/method",status_code=status.HTTP_200_OK)
+def putmethod():
     return {"method": "PUT"}
 
 
-@app.get("/method")
-def method():
+@app.get("/method",status_code=status.HTTP_200_OK)
+def getmethod():
     return {"method": "GET"}
 
 @app.post("/method", status_code=status.HTTP_201_CREATED)
-def method():
+def postmethod():
     return {"method": "POST"}
 
 
-@app.delete("/method")
-def method():
+@app.delete("/method",status_code=status.HTTP_200_OK)
+def deletemethod():
     return {"method": "DELETE"}
 
-@app.options("/method")
-def method():
+@app.options("/method",status_code=status.HTTP_200_OK)
+def optionsmethod():
     return {"method": "OPTIONS"}
 
 @app.get("/auth")
 def auth(password: Optional[str] = None ,password_hash: Optional[str]= None):
-    password_sha512 = sha512(password.encode())
-    if password_sha512.hexdigest() == password_hash:
-        raise HTTPException(status_code=204)
+    if password != None or password_hash !=None:
+        password_encode = password.encode()
+        password_sha512 = sha512(password_encode)
+        if password_sha512.hexdigest() == password_hash:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+        else:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else:
-        raise HTTPException(status_code=401)
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 class Patient(BaseModel):
@@ -83,10 +75,8 @@ def check_string(data):
 @app.post("/register")
 async def register(patient: Patient, response: Response):
     patient.id = app.id_reg
-    patient.name = check_string(patient.name)
-    patient.surname = check_string(patient.surname)
     patient.register_date = date.today().strftime('%Y-%m-%d')
-    plus_data = len(patient.name)+len(patient.surname)
+    plus_data = len(check_string(patient.name))+len(check_string(patient.surname))
     vaccination = date.today()+timedelta(days=plus_data)
     patient.vaccination_date = vaccination.strftime('%Y-%m-%d')
     app.patient_list.append(patient) 
