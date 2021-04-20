@@ -87,12 +87,11 @@ async def register(patient: Patient, response: Response):
 @app.get("/patient/{id}")
 def patient_reg(id: int, response: Response):
     if id<1:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     else:
-        if len(app.patient_list)!=0 and id in range(1,len(app.patient_list)):
+        if len(app.patient_list)!=0 and id in range(1,len(app.patient_list)+1):
             for patient in app.patient_list:
                 if patient.id == id:
-                    response.status_code = status.HTTP_200_OK
-                    return jsonable_encoder(patient)
+                    return jsonable_encoder(patient),Response(status_code=status.HTTP_200_OK)
         else:
-            response.status_code = status.HTTP_404_NOT_FOUND
+            raise HTTPException(status_code= status.HTTP_404_NOT_FOUND)
