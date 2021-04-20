@@ -44,15 +44,16 @@ def optionsmethod():
 
 @app.get("/auth")
 def auth(password: Optional[str] = None ,password_hash: Optional[str]= None):
-    if (password != None and len(password)>0) or (password_hash !=None and len(password_hash)>0):
-        password_encode = password.encode()
-        password_sha512 = sha512(password_encode)
-        if password_sha512.hexdigest() == password_hash:
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
-        else:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    if (password == None or len(password)<0) or (password_hash ==None or len(password_hash)<0):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    password_encode = password.encode()
+    password_sha512 = sha512(password_encode)
+    if password_sha512.hexdigest() == password_hash:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    
+            
 
 
 class Patient(BaseModel):
