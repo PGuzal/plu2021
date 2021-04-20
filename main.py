@@ -6,7 +6,6 @@ from fastapi.responses import JSONResponse
 from typing import Optional
 from datetime import datetime, time, timedelta, date
 from fastapi.encoders import jsonable_encoder
-import re
 app = FastAPI()
 app.counter = 0
 app.id_reg = 1
@@ -44,7 +43,7 @@ def optionsmethod():
 
 @app.get("/auth")
 def auth(password: Optional[str] = None ,password_hash: Optional[str]= None):
-    if (password == None or len(password)<0) or (password_hash ==None or len(password_hash)<0):
+    if password == None or len(password)==0 or password_hash ==None or len(password_hash)==0:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     password_encode = password.encode()
     password_sha512 = sha512(password_encode)
@@ -52,8 +51,6 @@ def auth(password: Optional[str] = None ,password_hash: Optional[str]= None):
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    
-            
 
 
 class Patient(BaseModel):
