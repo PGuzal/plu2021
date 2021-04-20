@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 from fastapi import FastAPI, Response, status, Request, HTTPException
 from pydantic import BaseModel
 from hashlib import sha512
@@ -65,7 +65,6 @@ class Patient(BaseModel):
 def check_string(data):
     new_data = data
     for c in data:
-        print(c.isdigit())
         if c.isalpha() == False:
             new_data = new_data.replace(c,'')
     new_data = new_data.translate(new_data.maketrans({'ó': 'o', 'ż': 'z','ź': 'z','ń':'n','ą':'a','ę':'e','ł':'l','ć':'c','ś':'s','Ó': 'O', 'Ż': 'Z','Ź': 'Z','Ń':'N','Ą':'A','Ę':'E','Ł':'L','Ć':'C','Ś':'S'}))
@@ -90,8 +89,9 @@ def patient_reg(id: int, response: Response):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     else:
         if len(app.patient_list)!=0 and id in range(1,len(app.patient_list)+1):
-            for patient in app.patient_list:
-                if patient.id == id:
-                    return jsonable_encoder(patient),Response(status_code=status.HTTP_200_OK)
+            for p_l in app.patient_list:
+                if p_l.id == id:
+                    response.status_code = status.HTTP_200_OK
+                    return jsonable_encoder(p_l)
         else:
             raise HTTPException(status_code= status.HTTP_404_NOT_FOUND)
