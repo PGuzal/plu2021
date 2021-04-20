@@ -44,7 +44,7 @@ def optionsmethod():
 
 @app.get("/auth")
 def auth(password: Optional[str] = None ,password_hash: Optional[str]= None):
-    if password != None or password_hash !=None:
+    if (password != None and len(password)>0) or (password_hash !=None and len(password_hash)>0):
         password_encode = password.encode()
         password_sha512 = sha512(password_encode)
         if password_sha512.hexdigest() == password_hash:
@@ -89,12 +89,10 @@ def patient_reg(id: int, response: Response):
     if id<1:
         response.status_code = status.HTTP_400_BAD_REQUEST
     else:
-        if len(app.patient_list)!=0:
+        if len(app.patient_list)!=0 and id in range(1,len(app.patient_list)):
             for patient in app.patient_list:
                 if patient.id == id:
                     response.status_code = status.HTTP_200_OK
                     return jsonable_encoder(patient)
-                else:
-                    response.status_code = status.HTTP_404_NOT_FOUND
         else:
             response.status_code = status.HTTP_404_NOT_FOUND
