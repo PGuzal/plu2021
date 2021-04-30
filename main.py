@@ -8,18 +8,19 @@ from datetime import date
 from fastapi_mako import FastAPIMako
 from routers.router import router
 from typing import List
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-
+from fastapi.security import HTTPBasic, HTTPBasicCredentials, APIKeyCookie
+import string
+import random 
 app = FastAPI()
 app.__name__ = "templates"
 mako = FastAPIMako(app)
 
-
+cookie_sec = APIKeyCookie(name="session")
 templates = Jinja2Templates(directory="templates")
 security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64+ characters"
 app.access_tokens = []
-
+app.token_value = ""
 app.counter = 0
 app.static_files = {}
 
@@ -42,17 +43,28 @@ def index_static(request: Request):
         "request": request, "date_now": date.today().strftime('%Y-%m-%d')})
 
 @app.get("/login_token")
-def read_items(credentials: HTTPBasicCredentials = Depends(security)):
+def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     correctU = secrets.compare_digest(credentials.username, "4dm1n")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-    if not (correctU and correctP):
+    if correctU and correctP:
+        letters = string.ascii_letters
+        app.token_value = ''.join(random.choice(letters) for i in range(15)) 
+        response.status_code = status.HTTP_201_CREATED
+        return {"token": app.token_value}
+    else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 @app.get("/login_session")
-def read_items(credentials: HTTPBasicCredentials = Depends(security)):
+def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     correctU = secrets.compare_digest(credentials.username, "4dm1n")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-    if not (correctU and correctP):
+    if correctU and correctP:
+        letters = string.ascii_letters
+        session_token = ''.join(random.choice(letters) for i in range(15)) 
+        response.set_cookie("session", session_token)
+        response.status_code = status.HTTP_201_CREATED
+        return response
+    else: 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
