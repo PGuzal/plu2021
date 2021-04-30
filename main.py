@@ -1,95 +1,130 @@
-
-from fastapi import FastAPI, Response, status, Request, HTTPException
+from hashlib import sha256
+import secrets
+from fastapi import Cookie, FastAPI, HTTPException, Query, Request, Response,Depends,status
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from hashlib import sha512
-from fastapi.responses import JSONResponse
-from typing import Optional
-from datetime import datetime, time, timedelta, date
-from fastapi.encoders import jsonable_encoder
+from datetime import date
+from fastapi_mako import FastAPIMako
+from routers.router import router
+from typing import List
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+
 app = FastAPI()
+app.__name__ = "templates"
+mako = FastAPIMako(app)
+
+
+templates = Jinja2Templates(directory="templates")
+security = HTTPBasic()
+app.secret_key = "very constatn and random secret, best 64+ characters"
+app.access_tokens = []
+
 app.counter = 0
-app.id_reg = 1
-app.patient_list = []
+app.static_files = {}
+
+
+app.include_router(
+    router, prefix="/v1", tags=["api_v1"],
+)
+
+app.include_router(router, tags=["default"])
+
 
 class HelloResp(BaseModel):
     msg: str
 
 
+
+@app.get("/hello")
+def index_static(request: Request):
+    return templates.TemplateResponse("index_hello.html", {
+        "request": request, "date_now": date.today().strftime('%Y-%m-%d')})
+
+@app.get("/login_token")
+def read_items(credentials: HTTPBasicCredentials = Depends(security)):
+    correctU = secrets.compare_digest(credentials.username, "4dm1n")
+    correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
+    if not (correctU and correctP):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+@app.get("/login_session")
+def read_items(credentials: HTTPBasicCredentials = Depends(security)):
+    correctU = secrets.compare_digest(credentials.username, "4dm1n")
+    correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
+    if not (correctU and correctP):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+
+
+
 @app.get("/")
 def root():
-    return {"message": "Hello world!"}
-
-@app.put("/method",status_code=status.HTTP_200_OK)
-def putmethod():
-    return {"method": "PUT"}
+    return {"message": "Hello World"}
 
 
-@app.get("/method",status_code=status.HTTP_200_OK)
-def getmethod():
-    return {"method": "GET"}
-
-@app.post("/method", status_code=status.HTTP_201_CREATED)
-def postmethod():
-    return {"method": "POST"}
+@app.get("/counter")
+def counter():
+    app.counter += 1
+    return app.counter
 
 
-@app.delete("/method",status_code=status.HTTP_200_OK)
-def deletemethod():
-    return {"method": "DELETE"}
+# @app.get("/hello/{name}", response_model=HelloResp)
+# def hello_name_view(name: str):
+#     return HelloResp(msg=f"Hello {name}")
 
-@app.options("/method",status_code=status.HTTP_200_OK)
-def optionsmethod():
-    return {"method": "OPTIONS"}
 
-@app.get("/auth")
-def auth(password: Optional[str] = None ,password_hash: Optional[str]= None):
-    if password == None or len(password)==0 or password_hash ==None or len(password_hash)==0:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    password_encode = password.encode()
-    password_sha512 = sha512(password_encode)
-    if password_sha512.hexdigest() == password_hash:
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
+@app.get("/request_query_string_discovery/")
+def read_items(u: str = "default", q: List[str] = None):
+    query_items = {"q": q, "u": u}
+    return query_items
+
+
+@app.get("/static", response_class=HTMLResponse)
+def index_static():
+    return """
+    <html>
+        <head>
+            <title>Some HTML in here</title>
+        </head>
+        <body>
+            <h1>Look ma! HTML!</h1>
+        </body>
+    </html>
+    """
+
+
+@app.get("/mako", response_class=HTMLResponse)
+@mako.template("index_mako.html")
+def index_mako(request: Request):
+    setattr(request, "mako", "test")
+    return {"my_string": "Wheeeee!", "my_list": [0, 1, 2, 3, 4, 5]}
+
+
+@app.get("/jinja")
+def read_item(request: Request):
+    return templates.TemplateResponse(
+        "index.html.j2",
+        {"request": request, "my_string": "Wheeeee!", "my_list": [0, 1, 2, 3, 4, 5]},
+    )
+
+
+@app.post("/login/")
+def login(user: str, password: str, response: Response):
+    session_token = sha256(f"{user}{password}{app.secret_key}".encode()).hexdigest()
+    app.access_tokens.append(session_token)
+    response.set_cookie(key="session_token", value=session_token)
+    return {"message": "Welcome"}
+
+
+@app.get("/data/")
+def secured_data(*, response: Response, session_token: str = Cookie(None)):
+    print(session_token)
+    print(app.access_tokens)
+    print(session_token in app.access_tokens)
+    if session_token not in app.access_tokens:
+        raise HTTPException(status_code=403, detail="Unathorised")
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        return {"message": "Secure Content"}
 
-
-class Patient(BaseModel):
-    id: Optional[int]
-    name:str
-    surname:str
-    register_date: Optional[date]
-    vaccination_date: Optional[date]
-
-def check_string(data):
-    new_data = data
-    for c in data:
-        if c.isalpha() == False:
-            new_data = new_data.replace(c,'')
-    new_data = new_data.translate(new_data.maketrans({'ó': 'o', 'ż': 'z','ź': 'z','ń':'n','ą':'a','ę':'e','ł':'l','ć':'c','ś':'s','Ó': 'O', 'Ż': 'Z','Ź': 'Z','Ń':'N','Ą':'A','Ę':'E','Ł':'L','Ć':'C','Ś':'S'}))
-    return new_data
-
-            
-@app.post("/register")
-async def register(patient: Patient, response: Response):
-    patient.id = app.id_reg
-    patient.register_date = date.today().strftime('%Y-%m-%d')
-    plus_data = len(check_string(patient.name))+len(check_string(patient.surname))
-    vaccination = date.today()+timedelta(days=plus_data)
-    patient.vaccination_date = vaccination.strftime('%Y-%m-%d')
-    app.patient_list.append(patient) 
-    app.id_reg +=1
-    response.status_code = status.HTTP_201_CREATED
-    return jsonable_encoder(patient)
-
-@app.get("/patient/{id}")
-def patient_reg(id: int, response: Response):
-    if id<1:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-    else:
-        if len(app.patient_list)!=0 and id in range(1,len(app.patient_list)+1):
-            for p_l in app.patient_list:
-                if p_l.id == id:
-                    response.status_code = status.HTTP_200_OK
-                    return jsonable_encoder(p_l)
-        else:
-            raise HTTPException(status_code= status.HTTP_404_NOT_FOUND)
