@@ -43,7 +43,7 @@ def index_static(request: Request):
     return templates.TemplateResponse("index_hello.html", {
         "request": request, "date_now": date.today().strftime('%Y-%m-%d')})
 
-@app.post("/login_token", response_class=JSONResponse)
+@app.post("/login_token")
 def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     correctU = secrets.compare_digest(credentials.username, "4dm1n")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
@@ -59,7 +59,7 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
 def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     correctU = secrets.compare_digest(credentials.username, "4dm1n")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-    if (correctU and correctP) and !(credentials.username == None and credentials.username ==  "") and !(credentials.password=="" and credentials.password==None):
+    if (correctU and correctP):
         letters = string.ascii_letters
         session_token = ''.join(random.choice(letters) for i in range(15)) 
         response.set_cookie(key="session_token", value=session_token)
