@@ -54,7 +54,6 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
         letters = string.ascii_letters
         app.token_value = ''.join(random.choice(letters) for i in range(15)) 
         response.status_code = status.HTTP_201_CREATED
-        print(app.token_value)
         return jsonable_encoder({"token": app.token_value})
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -73,24 +72,24 @@ def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(
 
 @app.get("/welcome_session")
 def welcome_s(format: Optional[str]=None, session_token: str = Cookie(None)):
-    if session_token != app.session_token:
+    if session_token == None or session_token != app.session_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else: 
-        if format =="json":
+        if format =="json" and format != None:
             return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
-        elif format=="html":
+        elif format=="html" and format != None:
             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
         else:
             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
 
 @app.get("/welcome_token")
 def welcome_t(token: Optional[str]=None, format: Optional[str]=None):
-    if token != app.token_value:
+    if token == None or token != app.token_value:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else: 
-        if format=="json":
+        if format =="json" and format != None:
             return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
-        elif format=="html":
+        elif format=="html" and format != None:
             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
         else:
             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
