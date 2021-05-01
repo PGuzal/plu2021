@@ -5,11 +5,13 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from datetime import date
+from typing import Optional
 from fastapi_mako import FastAPIMako
 from routers.router import router
 from typing import List
 from fastapi.security import HTTPBasic, HTTPBasicCredentials, APIKeyCookie
 import string
+from fastapi.responses import JSONResponse
 import random 
 from fastapi.encoders import jsonable_encoder
 app = FastAPI()
@@ -24,6 +26,7 @@ app.access_tokens = []
 app.token_value = ""
 app.counter = 0
 app.static_files = {}
+app.session_token=""
 
 
 app.include_router(
@@ -51,6 +54,7 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
         letters = string.ascii_letters
         app.token_value = ''.join(random.choice(letters) for i in range(15)) 
         response.status_code = status.HTTP_201_CREATED
+        print(app.token_value)
         return jsonable_encoder({"token": app.token_value})
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -61,13 +65,35 @@ def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if (correctU and correctP):
         letters = string.ascii_letters
-        session_token = ''.join(random.choice(letters) for i in range(15)) 
-        response.set_cookie(key="session_token", value=session_token)
+        app.session_token = ''.join(random.choice(letters) for i in range(15)) 
+        response.set_cookie(key="session_token", value=app.session_token)
         response.status_code = status.HTTP_201_CREATED
     else: 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
+@app.get("/welcome_session")
+def welcome_s(format: Optional[str]=None, session_token: str = Cookie(None)):
+    if session_token == "" or session_token == None or session_token != app.session_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    else: 
+        if format =="json":
+            return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
+        elif format=="html":
+            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
+        else:
+            return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
 
+@app.get("/welcome_token/{token}/{format}/")
+def welcome_t(token: Optional[str]=None, format: Optional[str]=None):
+    if token == "" or token == None or token != app.token_value:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    else: 
+        if format =="json":
+            return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
+        elif format=="html":
+            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
+        else:
+            return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
 @app.get("/")
 def root():
     return {"message": "Hello World"}
