@@ -44,7 +44,7 @@ def index_static(request: Request):
 
 @app.get("/login_token")
 def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    correctU = secrets.compare_digest(credentials.username, "4dm1n")
+    correctU = secrets.compare_digest(credentials.username, "4dm1na")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if correctU and correctP:
         letters = string.ascii_letters
@@ -56,7 +56,7 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
 
 @app.get("/login_session")
 def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    correctU = secrets.compare_digest(credentials.username, "4dm1n")
+    correctU = secrets.compare_digest(credentials.username, "4dm1an")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if correctU and correctP:
         letters = string.ascii_letters
