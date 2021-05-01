@@ -11,6 +11,7 @@ from typing import List
 from fastapi.security import HTTPBasic, HTTPBasicCredentials, APIKeyCookie
 import string
 import random 
+from fastapi.encoders import jsonable_encoder
 app = FastAPI()
 app.__name__ = "templates"
 mako = FastAPIMako(app)
@@ -42,7 +43,7 @@ def index_static(request: Request):
     return templates.TemplateResponse("index_hello.html", {
         "request": request, "date_now": date.today().strftime('%Y-%m-%d')})
 
-@app.get("/login_token")
+@app.post("/login_token", response_class=JSONResponse)
 def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     correctU = secrets.compare_digest(credentials.username, "4dm1n")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
@@ -50,25 +51,21 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
         letters = string.ascii_letters
         app.token_value = ''.join(random.choice(letters) for i in range(15)) 
         response.status_code = status.HTTP_201_CREATED
-        return {"token": app.token_value}
+        return jsonable_encoder({"token": app.token_value})
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
-@app.get("/login_session")
+@app.post("/login_session")
 def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
     correctU = secrets.compare_digest(credentials.username, "4dm1n")
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-    if correctU and correctP:
+    if (correctU and correctP) and !(credentials.username == None and credentials.username ==  "") and !(credentials.password=="" and credentials.password==None):
         letters = string.ascii_letters
         session_token = ''.join(random.choice(letters) for i in range(15)) 
-        response.set_cookie("session", session_token)
+        response.set_cookie(key="session_token", value=session_token)
         response.status_code = status.HTTP_201_CREATED
-        return response
     else: 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-
-
 
 
 @app.get("/")
