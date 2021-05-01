@@ -83,7 +83,7 @@ def welcome_s(format: Optional[str]=None, session_token: str = Cookie(None)):
         else:
             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
 
-@app.get("/welcome_token/{token}/{format}/")
+@app.get("/welcome_token")
 def welcome_t(token: Optional[str]=None, format: Optional[str]=None):
     if token == "" or token == None or token != app.token_value:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
