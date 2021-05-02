@@ -63,7 +63,7 @@ def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if (correctU and correctP):
         user_n = credentials.username
-        app.session_token = user_n[-2]+"99"+user_n[-1]+"23"
+        app.session_token = user_n[-2]+"88"+user_n[-1]+"23"
         response.set_cookie(key="session_token", value=app.session_token)
         response.status_code = status.HTTP_201_CREATED
     else: 
