@@ -52,7 +52,7 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if correctU and correctP:
         letters = string.ascii_letters
-        app.token_value = ''.join(random.choice(letters) for i in range(15)) 
+        app.token_value = CorrectU[-3:]+correctP[-3:]
         response.status_code = status.HTTP_201_CREATED
         return jsonable_encoder({"token": app.token_value})
     else:
@@ -64,7 +64,7 @@ def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if (correctU and correctP):
         letters = string.ascii_letters
-        app.session_token = ''.join(random.choice(letters) for i in range(15)) 
+        app.session_token = CorrectU[-3:]+correctP[-3:] 
         response.set_cookie(key="session_token", value=app.session_token)
         response.status_code = status.HTTP_201_CREATED
     else: 
