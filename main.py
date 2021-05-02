@@ -9,7 +9,7 @@ from typing import Optional
 from fastapi_mako import FastAPIMako
 from routers.router import router
 from typing import List
-from fastapi.security import HTTPBasic, HTTPBasicCredentials, APIKeyCookie
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import string
 from fastapi.responses import JSONResponse
 import random 
@@ -18,7 +18,6 @@ app = FastAPI()
 app.__name__ = "templates"
 mako = FastAPIMako(app)
 
-cookie_sec = APIKeyCookie(name="session")
 templates = Jinja2Templates(directory="templates")
 security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64+ characters"
@@ -52,7 +51,7 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if correctU and correctP:
         letters = string.ascii_letters
-        app.token_value = CorrectU[-3:]+correctP[-3:]
+        app.token_value =''.join(random.choice(letters) for i in range(15)) 
         response.status_code = status.HTTP_201_CREATED
         return jsonable_encoder({"token": app.token_value})
     else:
@@ -64,7 +63,7 @@ def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(
     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
     if (correctU and correctP):
         letters = string.ascii_letters
-        app.session_token = CorrectU[-3:]+correctP[-3:] 
+        app.session_token = ''.join(random.choice(letters) for i in range(15)) 
         response.set_cookie(key="session_token", value=app.session_token)
         response.status_code = status.HTTP_201_CREATED
     else: 
