@@ -75,9 +75,9 @@ def welcome_s(format: Optional[str]=None, session_token: str = Cookie(None)):
     if session_token == None or session_token != app.session_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else: 
-        if format =="json" and format != None:
+        if format =="json":
             return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
-        elif format=="html" and format != None:
+        elif format=="html":
             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
         else:
             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
@@ -87,9 +87,9 @@ def welcome_t(token: Optional[str]=None, format: Optional[str]=None):
     if token == None or token != app.token_value:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else: 
-        if format=="html" and format != None:
+        if format=="html":
             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
-        elif format =="json" and format != None:
+        elif format =="json":
             return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
         else:
             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
