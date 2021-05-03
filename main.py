@@ -20,23 +20,23 @@ mako = FastAPIMako(app)
 
 templates = Jinja2Templates(directory="templates")
 security = HTTPBasic()
-app.secret_key = "very constatn and random secret, best 64+ characters"
-app.access_tokens = []
+# app.secret_key = "very constatn and random secret, best 64+ characters"
+# app.access_tokens = []
 app.token_value = ""
-app.counter = 0
-app.static_files = {}
+# app.counter = 0
+# app.static_files = {}
 app.session_token=""
 
 
-app.include_router(
-    router, prefix="/v1", tags=["api_v1"],
-)
+# app.include_router(
+#     router, prefix="/v1", tags=["api_v1"],
+# )
 
-app.include_router(router, tags=["default"])
+# app.include_router(router, tags=["default"])
 
 
-class HelloResp(BaseModel):
-    msg: str
+# class HelloResp(BaseModel):
+#     msg: str
 
 
 
@@ -53,6 +53,7 @@ def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(se
         user_n = credentials.username
         app.token_value = user_n[-2]+"99"+user_n[-1]+"23"
         response.status_code = status.HTTP_201_CREATED
+        print(app.token_value)
         return jsonable_encoder({"token": app.token_value})
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -94,22 +95,22 @@ def welcome_t(token: Optional[str]=None, format: Optional[str]=None):
             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
 
 @app.delete("/logout_session")
-def delete_s(session_token: str = Cookie(None),format: Optional[str]=None):
+def delete_s(format: Optional[str]=None, session_token: str = Cookie(None)):
     if session_token == None or session_token != app.session_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    else: 
-        app.session_token=""
-        return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
+     
+    app.session_token=""
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
 
 @app.delete("/logout_token")
-def delete_t(token: Optional[str]=None,format: Optional[str]=None):
+def delete_t(format: Optional[str]=None, token: Optional[str]=None):
     if token == None or token != app.token_value:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    else: 
-        app.token_value = ""
-        return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
+     
+    app.token_value = ""
+    return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
 
-@app.post("/logged_out")
+@app.get("/logged_out")
 def log_out(format: Optional[str]=None):
     if format=="html":
             return HTMLResponse(content="<h1>Logged out!</h1>", status_code=status.HTTP_200_OK)
@@ -117,7 +118,6 @@ def log_out(format: Optional[str]=None):
             return JSONResponse(content={"message": "Logged out!"}, status_code=status.HTTP_200_OK)
     else:
             return Response(content="Logged out!", status_code=status.HTTP_200_OK, media_type="text/plain")
-
 
 # @app.get("/")
 # def root():
