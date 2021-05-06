@@ -4,7 +4,7 @@ from fastapi import Cookie, FastAPI, HTTPException, Query, Request, Response, st
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
-from typing import List
+from typing import List,Optional
 
 
 app = FastAPI()
@@ -33,6 +33,17 @@ async def customers():
     app.db_connection.row_factory = sqlite3.Row
     data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address, PostalCode, City, Country FROM Customers''').fetchall()
     return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"} for x in data]}, status_code=status.HTTP_200_OK)
+
+@app.get("/products/[id]")
+async def products(id: Optional[str]=None):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute(
+        "SELECT ProductID, ProductName FROM Products WHERE ProductID = :id",
+        {'id': id}).fetchone()
+    if data == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        return JSONResponse(content = {[{"id": ['ProductID'], "name": ['ProductName']}]}, status_code=status.HTTP_200_OK)
 
 
 # @app.get("/suppliers/{supplier_id}")
