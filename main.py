@@ -34,26 +34,24 @@ async def customers():
     data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address, PostalCode, City, Country FROM Customers''').fetchall()
     return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"} for x in data]}, status_code=status.HTTP_200_OK)
 
-@app.get("/products/[id]")
-async def products(id: Optional[str]=None):
+@app.get("/products/{id}")
+async def products(id: Optional[int]=None):
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute(
-        "SELECT ProductID, ProductName FROM Products WHERE ProductID = :id",
-        {'id': id}).fetchone()
+    data = app.db_connection.execute("SELECT ProductID, ProductName FROM Products WHERE ProductID = :product_id",{'product_id': id}).fetchone()
+    print(data)
     if data == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     else:
-        return JSONResponse(content = {[{"id": ['ProductID'], "name": ['ProductName']}]}, status_code=status.HTTP_200_OK)
+        return JSONResponse(content = {"id": data['ProductID'], "name": f"{data['ProductName']}"}, status_code=status.HTTP_200_OK)
 
 
-# @app.get("/suppliers/{supplier_id}")
-# async def single_supplier(supplier_id: int):
-#     app.db_connection.row_factory = sqlite3.Row
-#     data = app.db_connection.execute(
-#         "SELECT CompanyName, Address FROM Suppliers WHERE SupplierID = :supplier_id",
-#         {'supplier_id': supplier_id}).fetchone()
-
-#     return data
+@app.get("/suppliers/{supplier_id}")
+async def single_supplier(supplier_id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute(
+        "SELECT CompanyName, Address FROM Suppliers WHERE SupplierID = :supplier_id",
+        {'supplier_id': supplier_id}).fetchone()
+    return data
 
 
 # @app.get("/employee_with_region")
