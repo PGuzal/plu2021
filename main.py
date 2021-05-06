@@ -1,280 +1,132 @@
-from hashlib import sha256
-import secrets
-from fastapi import Cookie, FastAPI, HTTPException, Query, Request, Response,Depends,status
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
+import sqlite3
+
+from fastapi import Cookie, FastAPI, HTTPException, Query, Request, Response, status
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
-from datetime import date
-from typing import Optional
-from fastapi_mako import FastAPIMako
-from routers.router import router
+
 from typing import List
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-import string
-from fastapi.responses import JSONResponse
-import random 
-from fastapi.encoders import jsonable_encoder
-import queue
 
 
 app = FastAPI()
-app.__name__ = "templates"
-mako = FastAPIMako(app)
-
-templates = Jinja2Templates(directory="templates")
-security = HTTPBasic()
-# app.secret_key = "very constatn and random secret, best 64+ characters"
-# app.access_tokens = []
-# app.token_value = ""
-# # app.counter = 0
-# # app.static_files = {}
-# app.session_token=""
-app.token_value =[]
-app.session_token=[]
-# app.include_router(
-#     router, prefix="/v1", tags=["api_v1"],
-# )
-
-# app.include_router(router, tags=["default"])
-
-
-# class HelloResp(BaseModel):
-#     msg: str
 
 
 
-@app.get("/hello")
-def index_static(request: Request):
-    return templates.TemplateResponse("index_hello.html", {
-        "request": request, "date_now": date.today().strftime('%Y-%m-%d')})
-
-# @app.post("/login_token")
-# def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-#     correctU = secrets.compare_digest(credentials.username, "4dm1n")
-#     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-#     if correctU and correctP:
-#         user_n = credentials.username
-#         app.token_value = user_n[-2]+"99"+user_n[-1]+"23"
-#         response.status_code = status.HTTP_201_CREATED
-#         print(app.token_value)
-#         return jsonable_encoder({"token": app.token_value})
-#     else:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-# @app.post("/login_session")
-# def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-#     correctU = secrets.compare_digest(credentials.username, "4dm1n")
-#     correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-#     if (correctU and correctP):
-#         user_n = credentials.username
-#         app.session_token = user_n[-2]+"88"+user_n[-1]+"23"
-#         response.set_cookie(key="session_token", value=app.session_token)
-#         response.status_code = status.HTTP_201_CREATED
-#     else: 
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-# @app.get("/welcome_session")
-# def welcome_s(format: Optional[str]=None, session_token: str = Cookie(None)):
-#     if session_token == None or session_token != app.session_token:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-#     else: 
-#         if format =="json":
-#             return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
-#         elif format=="html":
-#             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
-#         else:
-#             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
-
-# @app.get("/welcome_token")
-# def welcome_t(token: Optional[str]=None, format: Optional[str]=None):
-#     if token == None or token != app.token_value:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-#     else: 
-#         if format=="html":
-#             return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
-#         elif format =="json":
-#             return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
-#         else:
-#             return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
-
-# @app.delete("/logout_session")
-# def delete_s(format: Optional[str]=None, session_token: str = Cookie(None)):
-#     if session_token == None or session_token != app.session_token:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-     
-#     app.session_token=""
-#     return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
-
-# @app.delete("/logout_token")
-# def delete_t(format: Optional[str]=None, token: Optional[str]=None):
-#     if token == None or token != app.token_value:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-     
-#     app.token_value = ""
-#     return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
-
-# @app.get("/logged_out")
-# def log_out(format: Optional[str]=None):
-#     if format=="html":
-#             return HTMLResponse(content="<h1>Logged out!</h1>", status_code=status.HTTP_200_OK)
-#     elif format =="json":
-#             return JSONResponse(content={"message": "Logged out!"}, status_code=status.HTTP_200_OK)
-#     else:
-#             return Response(content="Logged out!", status_code=status.HTTP_200_OK, media_type="text/plain")
-@app.post("/login_token")
-def token_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    correctU = secrets.compare_digest(credentials.username, "4dm1n")
-    correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-    if correctU and correctP:
-        letters = string.ascii_letters
-        if len(app.token_value)>=3:
-            app.token_value.pop(0)
-        new_token = ''.join(random.choice(letters) for i in range(15))
-        print(new_token)
-        while new_token in app.token_value:
-            new_token = ''.join(random.choice(letters) for i in range(15))
-            print(new_token)
-        app.token_value.append(new_token)
-        print(app.token_value)
-        response.status_code = status.HTTP_201_CREATED
-        return jsonable_encoder({"token": new_token})
-    else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-@app.post("/login_session")
-def session_log(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    correctU = secrets.compare_digest(credentials.username, "4dm1n")
-    correctP = secrets.compare_digest(credentials.password, "NotSoSecurePa$$")
-    if (correctU and correctP):
-        letters = string.ascii_letters
-        if len(app.session_token)>=3:
-            app.session_token.pop(0)
-        new_token = ''.join(random.choice(letters) for i in range(15))
-        print(new_token)
-        while new_token in app.session_token:
-            new_token = ''.join(random.choice(letters) for i in range(15))
-            print(new_token)
-        app.session_token.append(new_token)
-        print(app.session_token)
-        response.set_cookie(key="session_token", value=new_token)
-        response.status_code = status.HTTP_201_CREATED
-
-@app.get("/welcome_session")
-def welcome_s(format: Optional[str]=None, session_token: str = Cookie(None)):    
-    if session_token == None or not session_token in app.session_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    else: 
-        if format =="json":
-            return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
-        elif format=="html":
-            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
-        else:
-            return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
-
-@app.get("/welcome_token")
-def welcome_t(token: Optional[str]=None, format: Optional[str]=None):
-    if token == None or not token in app.token_value:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    else: 
-        if format=="html":
-            return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
-        elif format =="json":
-            return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
-        else:
-            return Response(content="Welcome!", status_code=status.HTTP_200_OK, media_type="text/plain")
-
-@app.delete("/logout_token")
-def delete_t(format: Optional[str]=None, token: Optional[str]=None):
-    if token == None or not token in app.token_value:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-     
-    app.token_value.remove(token)
-    print(app.token_value)
-    return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
-
-@app.delete("/logout_session")
-def delete_s(format: Optional[str]=None, session_token: str = Cookie(None)):
-    if session_token == None or not session_token in app.session_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-     
-    app.session_token.remove(session_token)
-    print(app.session_token)
-    return RedirectResponse(url=f"/logged_out?format={format}", status_code=status.HTTP_302_FOUND)
-
-@app.get("/logged_out")
-def log_out(format: Optional[str]=None):
-    if format=="html":
-            return HTMLResponse(content="<h1>Logged out!</h1>", status_code=status.HTTP_200_OK)
-    elif format =="json":
-            return JSONResponse(content={"message": "Logged out!"}, status_code=status.HTTP_200_OK)
-    else:
-            return Response(content="Logged out!", status_code=status.HTTP_200_OK, media_type="text/plain")
-# @app.get("/")
-# def root():
-#     return {"message": "Hello World"}
+@app.on_event("startup")
+async def startup():
+    app.db_connection = sqlite3.connect("northwind.db")
+    app.db_connection.text_factory = lambda b: b.decode(errors="ignore")  # northwind specific
 
 
-# @app.get("/counter")
-# def counter():
-#     app.counter += 1
-#     return app.counter
+@app.on_event("shutdown")
+async def shutdown():
+    app.db_connection.close()
+
+@app.get("/categories")
+async def categories():
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute('''SELECT CategoryID, CategoryName FROM Categories''').fetchall()
+    return JSONResponse(content = {"categories": [{"id": x['CategoryID'], "name": x['CategoryName']} for x in data]}, status_code=status.HTTP_200_OK)
+    
+    
+@app.get("/customers")
+async def customers():
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address, PostalCode, City, Country FROM Customers''').fetchall()
+    return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"} for x in data]}, status_code=status.HTTP_200_OK)
 
 
-# # @app.get("/hello/{name}", response_model=HelloResp)
-# # def hello_name_view(name: str):
-# #     return HelloResp(msg=f"Hello {name}")
+# @app.get("/suppliers/{supplier_id}")
+# async def single_supplier(supplier_id: int):
+#     app.db_connection.row_factory = sqlite3.Row
+#     data = app.db_connection.execute(
+#         "SELECT CompanyName, Address FROM Suppliers WHERE SupplierID = :supplier_id",
+#         {'supplier_id': supplier_id}).fetchone()
+
+#     return data
 
 
-# @app.get("/request_query_string_discovery/")
-# def read_items(u: str = "default", q: List[str] = None):
-#     query_items = {"q": q, "u": u}
-#     return query_items
+# @app.get("/employee_with_region")
+# async def employee_with_region():
+#     app.db_connection.row_factory = sqlite3.Row
+#     data = app.db_connection.execute('''
+#         SELECT Employees.LastName, Employees.FirstName, Territories.TerritoryDescription 
+#         FROM Employees JOIN EmployeeTerritories ON Employees.EmployeeID = EmployeeTerritories.EmployeeID
+#         JOIN Territories ON EmployeeTerritories.TerritoryID = Territories.TerritoryID;
+#      ''').fetchall()
+#     return [{"employee": f"{x['FirstName']} {x['LastName']}", "region": x["TerritoryDescription"]} for x in data]
 
 
-# @app.get("/static", response_class=HTMLResponse)
-# def index_static():
-#     return """
-#     <html>
-#         <head>
-#             <title>Some HTML in here</title>
-#         </head>
-#         <body>
-#             <h1>Look ma! HTML!</h1>
-#         </body>
-#     </html>
-#     """
+# @app.get("/customers")
+# async def customers():
+#     app.db_connection.row_factory = lambda cursor, x: x[0]
+#     artists = app.db_connection.execute("SELECT CompanyName FROM Customers").fetchall()
+#     return artists
 
 
-# @app.get("/mako", response_class=HTMLResponse)
-# @mako.template("index_mako.html")
-# def index_mako(request: Request):
-#     setattr(request, "mako", "test")
-#     return {"my_string": "Wheeeee!", "my_list": [0, 1, 2, 3, 4, 5]}
+# class Customer(BaseModel):
+#     company_name: str
 
 
-# @app.get("/jinja")
-# def read_item(request: Request):
-#     return templates.TemplateResponse(
-#         "index.html.j2",
-#         {"request": request, "my_string": "Wheeeee!", "my_list": [0, 1, 2, 3, 4, 5]},
+# @app.post("/customers/add")
+# async def customers_add(customer: Customer):
+#     cursor = app.db_connection.execute(
+#         f"INSERT INTO Customers (CompanyName) VALUES ('{customer.company_name}')"
 #     )
+#     app.db_connection.commit()
+#     return {
+#         "CustomerID": cursor.lastrowid,
+#         "CompanyName": customer.company_name
+#     }
 
 
-# @app.post("/login/")
-# def login(user: str, password: str, response: Response):
-#     session_token = sha256(f"{user}{password}{app.secret_key}".encode()).hexdigest()
-#     app.access_tokens.append(session_token)
-#     response.set_cookie(key="session_token", value=session_token)
-#     return {"message": "Welcome"}
+# class Shipper(BaseModel):
+#     company_name: str
 
 
-# @app.get("/data/")
-# def secured_data(*, response: Response, session_token: str = Cookie(None)):
-#     print(session_token)
-#     print(app.access_tokens)
-#     print(session_token in app.access_tokens)
-#     if session_token not in app.access_tokens:
-#         raise HTTPException(status_code=403, detail="Unathorised")
-#     else:
-#         return {"message": "Secure Content"}
+# @app.patch("/shippers/edit/{shipper_id}")
+# async def artists_add(shipper_id: int, shipper: Shipper):
+#     cursor = app.db_connection.execute(
+#         "UPDATE Shippers SET CompanyName = ? WHERE ShipperID = ?", (
+#             shipper.company_name, shipper_id)
+#     )
+#     app.db_connection.commit()
 
+#     app.db_connection.row_factory = sqlite3.Row
+#     data = app.db_connection.execute(
+#         """SELECT ShipperID AS shipper_id, CompanyName AS company_name
+#          FROM Shippers WHERE ShipperID = ?""",
+#         (shipper_id, )).fetchone()
+
+#     return data
+
+
+# @app.get("/orders")
+# async def orders():
+#     app.db_connection.row_factory = sqlite3.Row
+#     orders = app.db_connection.execute("SELECT * FROM Orders").fetchall()
+#     return {
+#         "orders_counter": len(orders),
+#         "orders": orders,
+#     }
+
+
+# @app.delete("/orders/delete/{order_id}")
+# async def order_delete(order_id: int):
+#     cursor = app.db_connection.execute(
+#         "DELETE FROM Orders WHERE OrderID = ?", (order_id, )
+#     )
+#     app.db_connection.commit()
+#     return {"deleted": cursor.rowcount}
+
+
+# @app.get("/region_count")
+# async def root():
+#     app.db_connection.row_factory = lambda cursor, x: x[0]
+#     regions = app.db_connection.execute(
+#         "SELECT RegionDescription FROM Regions ORDER BY RegionDescription DESC").fetchall()
+#     count = app.db_connection.execute('SELECT COUNT(*) FROM Regions').fetchone()
+
+#     return {
+#         "regions": regions,
+#         "regions_counter": count
+#     }
