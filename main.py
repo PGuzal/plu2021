@@ -41,17 +41,26 @@ async def products(id: Optional[int]=None):
     print(data)
     if data == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    else:
-        return JSONResponse(content = {"id": data['ProductID'], "name": f"{data['ProductName']}"}, status_code=status.HTTP_200_OK)
+    return JSONResponse(content = {"id": data['ProductID'], "name": f"{data['ProductName']}"}, status_code=status.HTTP_200_OK)
 
-
-@app.get("/suppliers/{supplier_id}")
-async def single_supplier(supplier_id: int):
+@app.get("/employees", status_code=status.HTTP_200_OK)
+async def employees(limit: Optional[int]=1000,offset: Optional[int]=1,order: Optional[str]="id"):
+    order_name = ["first_name", "last_name", "city","id"]
+    if not order in order_name:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute(
-        "SELECT CompanyName, Address FROM Suppliers WHERE SupplierID = :supplier_id",
-        {'supplier_id': supplier_id}).fetchone()
-    return data
+    translate_dict = {"first_name":"FirstName","last_name":"LastName","city":"City","id":"EmployeeID"}
+    for key, value in translate_dict.items():
+        new_order = order.replace(key, value)
+    data = app.db_connection.execute(f'''SELECT * FROM Employees ORDER BY ('{new_order}') LIMIT {limit} OFFSET {offset}''').fetchall()
+    return JSONResponse(content = {"employees":[{"id": x[translate_dict["id"]], "last_name": f"{x[translate_dict['last_name']]}", "first_name": f"{x[translate_dict['first_name']]}","city": f"{x[translate_dict['city']]}"} for x in data]}, status_code=status.HTTP_200_OK)
+# @app.get("/suppliers/{supplier_id}")
+# async def single_supplier(supplier_id: int):
+#     app.db_connection.row_factory = sqlite3.Row
+#     data = app.db_connection.execute(
+#         "SELECT CompanyName, Address FROM Suppliers WHERE SupplierID = :supplier_id",
+#         {'supplier_id': supplier_id}).fetchone()
+#     return data
 
 
 # @app.get("/employee_with_region")
