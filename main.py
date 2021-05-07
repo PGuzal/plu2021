@@ -44,7 +44,7 @@ async def products(id: Optional[int]=None):
     return JSONResponse(content = {"id": data['ProductID'], "name": f"{data['ProductName']}"}, status_code=status.HTTP_200_OK)
 
 @app.get("/employees", status_code=status.HTTP_200_OK)
-async def employees(limit: Optional[int]=11000,offset: Optional[int]=1,order: Optional[str]="id"):
+async def employees(limit: Optional[int]=11000,offset: Optional[int]=0,order: Optional[str]="id"):
     order_name = ["first_name", "last_name", "city","id"]
     if not order in order_name:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
