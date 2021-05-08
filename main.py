@@ -87,7 +87,7 @@ async def prod_ord(id: Optional[int]=None):
     ''').fetchall()
     if data == None or not data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return JSONResponse(content = {"orders":[{"id": f"{x['OrderId']}".strip(), "customer": f"{x['CompanyName']}".strip(),"quantity":f"{x['Quantity']}".strip(),"total_price":round((x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity'])),2)}for x in data]}, status_code=status.HTTP_200_OK)
+    return JSONResponse(content = {"orders":[{"id": f"{x['OrderId']}".strip(), "customer": f"{x['CompanyName']}".strip(),"quantity":f"{x['Quantity']}","total_price":round((x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity'])),2)}for x in data]}, status_code=status.HTTP_200_OK)
 # @app.get("/suppliers/{supplier_id}")
 # async def single_supplier(supplier_id: int):
 #     app.db_connection.row_factory = sqlite3.Row
