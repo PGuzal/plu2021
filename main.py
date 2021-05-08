@@ -89,7 +89,7 @@ async def prod_ord(id: Optional[int]=None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":x['Quantity'],"total_price":round((x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity'])),2)}for x in data]}, status_code=status.HTTP_200_OK)
 
-@app.post("/categories",status_code=status.HTTP_200_OK)
+@app.post("/categories",status_code=status.HTTP_201_CREATED)
 async def categories_post(name: Optional[str]=None):
     # if not name: 
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
