@@ -31,8 +31,8 @@ async def categories():
 @app.get("/customers")
 async def customers():
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address, PostalCode, City, Country FROM Customers''').fetchall()
-    return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['Address']} {x['PostalCode']} {x['City']} {x['Country']}"} for x in data]}, status_code=status.HTTP_200_OK)
+    data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address|| '' ||PostalCode|| '' ||City|| '' ||Country as fulladress FROM Customers''').fetchall()
+    return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['fulladress']}"} for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.get("/products/{id}")
 async def products(id: Optional[int]=None):
@@ -120,8 +120,10 @@ async def categories_put(name: str, id: Optional[int]=None):
     cursor = app.db_connection.execute(
         f"UPDATE Categories SET CategoryName = '{name}' WHERE CategoryID = {id}"
     )
-    print(name,id)
     app.db_connection.commit()
+    categories = app.db_connection.execute(
+        """SELECT CategoryID, CategoryName
+         FROM Categories WHERE CategoryID = ?""",(id, )).fetchone()
     return JSONResponse(content = {"id": categories['CategoryID'], "name":categories['CategoryName'] }, status_code=status.HTTP_200_OK)
 
 
