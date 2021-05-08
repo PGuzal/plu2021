@@ -24,14 +24,14 @@ async def shutdown():
 @app.get("/categories")
 async def categories():
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID''').fetchall()
+    data = app.db_connection.execute('''SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID COLLATE NOCASE''').fetchall()
     return JSONResponse(content = {"categories": [{"id": x['CategoryID'], "name": x['CategoryName']} for x in data]}, status_code=status.HTTP_200_OK)
     
     
 @app.get("/customers")
-async def customers():
+async def customers(): 
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address|| '' ||PostalCode|| '' ||City|| '' ||Country as fulladress FROM Customers ORDER BY CustomerID''').fetchall()
+    data = app.db_connection.execute('''SELECT CustomerID, CompanyName,(COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) as fulladress FROM Customers ORDER BY CustomerID COLLATE NOCASE''').fetchall()
     return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['fulladress']}"} for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.get("/products/{id}")
