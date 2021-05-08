@@ -74,7 +74,7 @@ async def prod_ext():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse(content = {"products_extended":[{"id": x['ProductID'], "name": f"{x['ProductName']}","category":f"{x['CategoryName']}","supplier":f"{x['CompanyName']}"}for x in data]}, status_code=status.HTTP_200_OK)
 
-@app.get("/products/[id]/orders")
+@app.get("/products/{id}/orders")
 async def prod_ord(id: Optional[int]=None):
     app.db_connection.row_factory = sqlite3.Row
     if id == None:
@@ -85,8 +85,8 @@ async def prod_ord(id: Optional[int]=None):
         JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID WHERE ProductID = {id}
         ORDER BY ProductID
     ''').fetchall()
-    # if data == None or not data:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if data == None or not data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}".strip(),"quantity":f"{x['Quantity']}".strip(),"total_price":round((x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity'])),2)}for x in data]}, status_code=status.HTTP_200_OK)
 # @app.get("/suppliers/{supplier_id}")
 # async def single_supplier(supplier_id: int):
