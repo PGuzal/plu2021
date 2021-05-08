@@ -94,8 +94,6 @@ class category_name(BaseModel):
 
 @app.post("/categories")
 async def categories_post(name: category_name):
-    # if not name: 
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     cursor = app.db_connection.execute(
         f"INSERT INTO Categories (CategoryName) VALUES ('{name.name}')"
     )
@@ -104,14 +102,10 @@ async def categories_post(name: category_name):
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
         """SELECT CategoryID, CategoryName FROM Categories WHERE CategoryID = ?""",(new_categories_id, )).fetchone()
-    print(categories)
-    print({"id": categories['CategoryID'], "name":categories['CategoryName'] })
     return JSONResponse(content = {"id": categories['CategoryID'], "name":categories['CategoryName'] }, status_code=status.HTTP_201_CREATED)
 
 @app.put("/categories/{id}")
 async def categories_put(name: category_name,id: Optional[int]=None):
-    if not id: 
-       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
         """SELECT CategoryID, CategoryName
@@ -131,8 +125,6 @@ async def categories_put(name: category_name,id: Optional[int]=None):
 
 @app.delete("/categories/{id}")
 async def cat_del(id: Optional[int]=None):
-    if not id: 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
         """SELECT CategoryID AS customer_id, CategoryName AS name
@@ -146,7 +138,7 @@ async def cat_del(id: Optional[int]=None):
     app.db_connection.commit()
     if not cursor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return JSONResponse(content = {"deleted": cursor.lastrowid},status_code=status.HTTP_200_OK)
+    return JSONResponse(content = {"deleted": cursor.rowcount},status_code=status.HTTP_200_OK)
 
 # @app.get("/suppliers/{supplier_id}")
 # async def single_supplier(supplier_id: int):
