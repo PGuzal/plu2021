@@ -85,9 +85,9 @@ async def prod_ord(id: Optional[int]=None):
         JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID WHERE ProductID = {id}
         ORDER BY ProductID
     ''').fetchall()
-    if data == None or not data:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":f"{x['Quantity']}","total_price":f"{(x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity']))}"}for x in data]}, status_code=status.HTTP_200_OK)
+    # if data == None or not data:
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}".strip(),"quantity":f"{x['Quantity']}".strip(),"total_price":f"{(x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity']))}"}for x in data]}, status_code=status.HTTP_200_OK)
 # @app.get("/suppliers/{supplier_id}")
 # async def single_supplier(supplier_id: int):
 #     app.db_connection.row_factory = sqlite3.Row
