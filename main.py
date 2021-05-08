@@ -42,18 +42,24 @@ async def products(id: Optional[int]=None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse(content = {"id": data['ProductID'], "name": f"{data['ProductName']}"}, status_code=status.HTTP_200_OK)
 
-@app.get("/employees", status_code=status.HTTP_200_OK)
-async def employees(limit: Optional[int]=None,offset: Optional[int]=0,order: Optional[str]="id"):
+@app.get("/employees")
+async def employees(order: Optional[str]="id",limit: Optional[int]=None,offset: Optional[int]=0):
     order_name = {"first_name":"FirstName","last_name":"LastName","city":"City","id":"EmployeeID"}
     text_limit_offset = f''''''
+    print(not order in order_name.keys())
     if not order in order_name.keys():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     app.db_connection.row_factory = sqlite3.Row
+    old_order = order
     for key, value in order_name.items():
         new_order = order.replace(key, value)
+        if new_order is not old_order:
+            break
     if limit != None: text_limit_offset = f'''LIMIT {limit} OFFSET {offset}'''
-    data = app.db_connection.execute(f'''SELECT * FROM Employees ORDER BY {new_order} {text_limit_offset}''').fetchall()
-    return {"employees":[{"id": x[order_name["id"]], "last_name": f"{x[order_name['last_name']]}", "first_name": f"{x[order_name['first_name']]}","city": f"{x[order_name['city']]}"} for x in data]}
+    data = app.db_connection.execute(f'''SELECT EmployeeID, LastName, FirstName, City FROM Employees ORDER BY {new_order} {text_limit_offset}''').fetchall()
+    if data == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return JSONResponse({"employees":[{"id": x[order_name["id"]], "last_name": f"{x[order_name['last_name']]}", "first_name": f"{x[order_name['first_name']]}","city": f"{x[order_name['city']]}"} for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.get("/products_extended")
 async def prod_ext():
@@ -67,6 +73,15 @@ async def prod_ext():
     if data == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse(content = {"products_extended":[{"id": x['ProductID'], "name": f"{x['ProductName']}","category":f"{x['CategoryName']}","supplier":f"{x['CompanyName']}"}for x in data]}, status_code=status.HTTP_200_OK)
+
+@app.get("/products/[id]/orders")
+async def prod_ord():
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute("SELECT ProductID, ProductName FROM Products WHERE ProductID = :product_id",{'product_id': id}).fetchone()
+    
+    if data == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":f"{x['Details']}","total_price":f"{x['CompanyName']}"}for x in data]}, status_code=status.HTTP_200_OK)
 # @app.get("/suppliers/{supplier_id}")
 # async def single_supplier(supplier_id: int):
 #     app.db_connection.row_factory = sqlite3.Row
