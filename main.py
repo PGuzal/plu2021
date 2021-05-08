@@ -75,13 +75,13 @@ async def prod_ext():
     return JSONResponse(content = {"products_extended":[{"id": x['ProductID'], "name": f"{x['ProductName']}","category":f"{x['CategoryName']}","supplier":f"{x['CompanyName']}"}for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.get("/products/[id]/orders")
-async def prod_ord(id: Optional[str]=None):
+async def prod_ord(id: Optional[int]=None):
     app.db_connection.row_factory = sqlite3.Row
-    if not id:
+    if id==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     data = app.db_connection.execute(f'''
         SELECT Orders.OrderID, CompanyName,Quantity, UnitPrice, Discount FROM Orders 
-        JOIN Customers ON Orders.OrderID = Customers.CustomerID 
+        JOIN Customers ON Orders.CustomerID  = Customers.CustomerID 
         JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID WHERE ProductID = {id}
         ORDER BY ProductID
     ''').fetchall()
