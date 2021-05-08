@@ -31,8 +31,9 @@ async def categories():
 @app.get("/customers")
 async def customers(): 
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''SELECT CustomerID, CompanyName,(COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) as fulladress FROM Customers ORDER BY CustomerID COLLATE NOCASE''').fetchall()
-    return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['fulladress']}"} for x in data]}, status_code=status.HTTP_200_OK)
+    data = app.db_connection.execute('''SELECT CustomerID as id, CompanyName as name,(COALESCE(Address, '') || ' ' || COALESCE(PostalCode, '') || ' ' || COALESCE(City, '') || ' ' || COALESCE(Country, '')) as full_adress FROM Customers ORDER BY CustomerID COLLATE NOCASE''').fetchall()
+    #print([x['full_adress'] for x in data])
+    return JSONResponse(content = {"customers": [{"id": x['id'], "name": x['name'],"full_address":f"{x['full_adress']}"} for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.get("/products/{id}")
 async def products(id: Optional[int]=None):
