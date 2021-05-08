@@ -90,7 +90,7 @@ async def prod_ord(id: Optional[int]=None):
     return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":x['Quantity'],"total_price":round((x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity'])),2)}for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.post("/categories")
-async def categories_post(name: str):
+async def categories_post( name: Optional[str]=None):
     # if not name: 
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     cursor = app.db_connection.execute(
@@ -107,7 +107,7 @@ async def categories_post(name: str):
     return JSONResponse(content = {"id": categories['CategoryID'], "name":categories['CategoryName'] }, status_code=status.HTTP_201_CREATED)
 
 @app.put("/categories/{id}")
-async def categories_put(name: str, id: Optional[int]=None):
+async def categories_put(id: Optional[int]=None, name: Optional[str]=None):
     if not id: 
        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     app.db_connection.row_factory = sqlite3.Row
