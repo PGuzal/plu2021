@@ -53,7 +53,7 @@ async def employees(limit: Optional[int]=None,offset: Optional[int]=0,order: Opt
         new_order = order.replace(key, value)
     if limit != None: text_limit_offset = f'''LIMIT {limit} OFFSET {offset}'''
     data = app.db_connection.execute(f'''SELECT * FROM Employees ORDER BY {new_order} {text_limit_offset}''').fetchall()
-    return JSONResponse(content = {"employees":[{"id": x[order_name["id"]], "last_name": f"{x[order_name['last_name']]}", "first_name": f"{x[order_name['first_name']]}","city": f"{x[order_name['city']]}"} for x in data]})
+    return {"employees":[{"id": x[order_name["id"]], "last_name": f"{x[order_name['last_name']]}", "first_name": f"{x[order_name['first_name']]}","city": f"{x[order_name['city']]}"} for x in data]}
 
 @app.get("/products_extended")
 async def prod_ext():
