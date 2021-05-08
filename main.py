@@ -88,6 +88,41 @@ async def prod_ord(id: Optional[int]=None):
     if data == None or not data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":x['Quantity'],"total_price":round((x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity'])),2)}for x in data]}, status_code=status.HTTP_200_OK)
+
+@app.post("/categories")
+async def categories_post(name: Optional[str]=None):
+    if not name: 
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    cursor = app.db_connection.execute(
+        f"INSERT INTO Categories (CategoryName) VALUES ('{name}')"
+    )
+    app.db_connection.commit()
+    return JSONResponse(content = {"id": cursor.lastrowid, "name": name}, status_code=status.HTTP_200_OK)
+
+@app.put("/categories/{id}")
+async def categories_put(id: Optional[int]=None, name: Optional[str]=None):
+    if not name or not id: 
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    cursor = app.db_connection.execute(
+        f"UPDATE Categories SET CategoryName = '{name}' WHERE CategoryID = {id}"
+    )
+    app.db_connection.commit()
+    if not cursor:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return JSONResponse(content = {"id": cursor.lastrowid, "name": name}, status_code=status.HTTP_200_OK)
+
+@app.delete("/categories/{id}")
+async def cat_del(id: Optional[int]=None):
+    if not id: 
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    cursor = app.db_connection.execute(
+        "DELETE FROM Categories WHERE CategoryID = ?", (id, )
+    )
+    app.db_connection.commit()
+    if not cursor:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return JSONResponse(content = {"deleted": cursor.lastrowid},status_code=status.HTTP_200_OK)
+
 # @app.get("/suppliers/{supplier_id}")
 # async def single_supplier(supplier_id: int):
 #     app.db_connection.row_factory = sqlite3.Row
