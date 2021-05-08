@@ -6,3 +6,6 @@ tests.py
 2_A_jak_art/.ipynb_checkpoints/2_A_jak_Art-checkpoint.ipynb
 2_A_jak_art/.ipynb_checkpoints/PracaDomowa-checkpoint.ipynb
 2_A_jak_art/.ipynb_checkpoints/Untitled-checkpoint.ipynb
+northwind.db
+northwind.db
+*.db
