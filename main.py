@@ -75,13 +75,19 @@ async def prod_ext():
     return JSONResponse(content = {"products_extended":[{"id": x['ProductID'], "name": f"{x['ProductName']}","category":f"{x['CategoryName']}","supplier":f"{x['CompanyName']}"}for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.get("/products/[id]/orders")
-async def prod_ord():
+async def prod_ord(id: Optional[str]=None):
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute("SELECT ProductID, ProductName FROM Products WHERE ProductID = :product_id",{'product_id': id}).fetchone()
-    
-    if data == None:
+    if not id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":f"{x['Details']}","total_price":f"{x['CompanyName']}"}for x in data]}, status_code=status.HTTP_200_OK)
+    data = app.db_connection.execute(f'''
+        SELECT Orders.OrderID, CompanyName,Quantity, UnitPrice, Discount FROM Orders 
+        JOIN Customers ON Orders.OrderID = Customers.CustomerID 
+        JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID WHERE ProductID = {id}
+        ORDER BY ProductID
+    ''').fetchall()
+    if data == None or not data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":f"{x['Quantity']}","total_price":f"{(x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity']))}"}for x in data]}, status_code=status.HTTP_200_OK)
 # @app.get("/suppliers/{supplier_id}")
 # async def single_supplier(supplier_id: int):
 #     app.db_connection.row_factory = sqlite3.Row
