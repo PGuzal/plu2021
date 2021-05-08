@@ -89,25 +89,27 @@ async def prod_ord(id: Optional[int]=None):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse(content = {"orders":[{"id": x['OrderId'], "customer": f"{x['CompanyName']}","quantity":x['Quantity'],"total_price":round((x['UnitPrice']*x['Quantity']) - (x['Discount']*(x['UnitPrice']*x['Quantity'])),2)}for x in data]}, status_code=status.HTTP_200_OK)
 
+class category_name(BaseModel):
+    name:str
+
 @app.post("/categories")
-async def categories_post(name: str):
+async def categories_post(name: category_name):
     # if not name: 
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     cursor = app.db_connection.execute(
-        f"INSERT INTO Categories (CategoryName) VALUES ('{name}')"
+        f"INSERT INTO Categories (CategoryName) VALUES ('{name.name}')"
     )
     app.db_connection.commit()
     new_categories_id = cursor.lastrowid
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
-        """SELECT CategoryID, CategoryName
-         FROM Categories WHERE CategoryID = ?""",
-        (new_categories_id, )).fetchone()
-
+        """SELECT CategoryID, CategoryName FROM Categories WHERE CategoryID = ?""",(new_categories_id, )).fetchone()
+    print(categories)
+    print({"id": categories['CategoryID'], "name":categories['CategoryName'] })
     return JSONResponse(content = {"id": categories['CategoryID'], "name":categories['CategoryName'] }, status_code=status.HTTP_201_CREATED)
 
 @app.put("/categories/{id}")
-async def categories_put(name: str, id: int):
+async def categories_put(name: category_name,id: Optional[int]=None):
     if not id: 
        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     app.db_connection.row_factory = sqlite3.Row
@@ -118,7 +120,7 @@ async def categories_put(name: str, id: int):
     if not categories:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     cursor = app.db_connection.execute(
-        f"UPDATE Categories SET CategoryName = '{name}' WHERE CategoryID = {id}"
+        f"UPDATE Categories SET CategoryName = '{name.name}' WHERE CategoryID = {id}"
     )
     app.db_connection.commit()
     categories = app.db_connection.execute(
@@ -128,7 +130,7 @@ async def categories_put(name: str, id: int):
 
 
 @app.delete("/categories/{id}")
-async def cat_del(id: int):
+async def cat_del(id: Optional[int]=None):
     if not id: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     app.db_connection.row_factory = sqlite3.Row
