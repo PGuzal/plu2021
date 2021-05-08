@@ -107,7 +107,7 @@ async def categories_post(name: str):
     return JSONResponse(content = {"id": categories['CategoryID'], "name":categories['CategoryName'] }, status_code=status.HTTP_201_CREATED)
 
 @app.put("/categories/{id}")
-async def categories_put(id: Optional[int]=None, name: str):
+async def categories_put(name: str, id: Optional[int]=None):
     if not id: 
        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     app.db_connection.row_factory = sqlite3.Row
