@@ -24,14 +24,14 @@ async def shutdown():
 @app.get("/categories")
 async def categories():
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''SELECT CategoryID, CategoryName FROM Categories''').fetchall()
+    data = app.db_connection.execute('''SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryID''').fetchall()
     return JSONResponse(content = {"categories": [{"id": x['CategoryID'], "name": x['CategoryName']} for x in data]}, status_code=status.HTTP_200_OK)
     
     
 @app.get("/customers")
 async def customers():
     app.db_connection.row_factory = sqlite3.Row
-    data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address|| '' ||PostalCode|| '' ||City|| '' ||Country as fulladress FROM Customers''').fetchall()
+    data = app.db_connection.execute('''SELECT CustomerID, CompanyName, Address|| '' ||PostalCode|| '' ||City|| '' ||Country as fulladress FROM Customers ORDER BY CustomerID''').fetchall()
     return JSONResponse(content = {"customers": [{"id": x['CustomerID'], "name": x['CompanyName'],"full_adress":f"{x['fulladress']}"} for x in data]}, status_code=status.HTTP_200_OK)
 
 @app.get("/products/{id}")
@@ -92,7 +92,7 @@ async def prod_ord(id: Optional[int]=None):
 class category_name(BaseModel):
     name:str
 
-@app.post("/categories")
+@app.post("/categories",status_code=status.HTTP_201_CREATED)
 async def categories_post(name: category_name):
     cursor = app.db_connection.execute(
         f"INSERT INTO Categories (CategoryName) VALUES ('{name.name}')"
@@ -101,10 +101,11 @@ async def categories_post(name: category_name):
     new_categories_id = cursor.lastrowid
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
-        """SELECT CategoryID, CategoryName FROM Categories WHERE CategoryID = ?""",(new_categories_id, )).fetchone()
-    return JSONResponse(content = {"id": categories['CategoryID'], "name":categories['CategoryName'] }, status_code=status.HTTP_201_CREATED)
+        f"""SELECT CategoryID AS id, CategoryName AS name FROM Categories WHERE CategoryID = {new_categories_id}""").fetchone()
+    print(name.name)
+    return categories
 
-@app.put("/categories/{id}")
+@app.put("/categories/{id}",status_code=status.HTTP_200_OK)
 async def categories_put(name: category_name,id: Optional[int]=None):
     app.db_connection.row_factory = sqlite3.Row
     categories = app.db_connection.execute(
@@ -116,11 +117,12 @@ async def categories_put(name: category_name,id: Optional[int]=None):
     cursor = app.db_connection.execute(
         f"UPDATE Categories SET CategoryName = '{name.name}' WHERE CategoryID = {id}"
     )
+    print(name.name)
     app.db_connection.commit()
     categories = app.db_connection.execute(
-        """SELECT CategoryID, CategoryName
+        """SELECT CategoryID AS id, CategoryName AS name
          FROM Categories WHERE CategoryID = ?""",(id, )).fetchone()
-    return JSONResponse(content = {"id": categories['CategoryID'], "name":categories['CategoryName'] }, status_code=status.HTTP_200_OK)
+    return categories
 
 
 @app.delete("/categories/{id}")
