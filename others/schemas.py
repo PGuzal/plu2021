@@ -47,6 +47,7 @@ class Prod_supl(BaseModel):
     ContactName: Optional[constr(max_length=30)]
     #Category: List[CategoryData] = {}
     CategoryID:Optional[constr(max_length=30)]
+    CategoryName:Optional[constr(max_length=30)]
     Discontinued: Optional[constr(max_length=30)]
 
     class Config:
