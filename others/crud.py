@@ -29,9 +29,9 @@ def get_product(db: Session, id: int):
 
 
 def make_supplier(db: Session,supp:schemas.Supp_post):
-    index = db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
-    print(index.SupplierID)
-    db_supp = models.Supplier(**supp.dict(),SupplierID = index.SupplierID)
+    index = db.query(models.Supplier.SupplierID).order_by(models.Supplier.SupplierID.desc()).first()
+    print(index)
+    db_supp = models.Supplier(**supp.dict(),SupplierID = index)
     db.add(db_supp)
     db.commit()
     db.refresh(db_supp)
