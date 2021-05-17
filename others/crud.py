@@ -37,9 +37,9 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
 
 def update_supplier(db: Session,supp:schemas.Supplier2,id:id):
-    # supp_db = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
-    # key = [i for i,j in zip(supp.keys(),supp.values()) if j is not None]
-    # for i in key:
-        # supp_db.globals()['%s' % i] = supp[i]
-    # db.commit()
+    supp_db = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
+    key = [i for i,j in zip(supp.keys(),supp.values()) if j is not None]
+    for i in key:
+        supp_db.globals()['%s' % i] = supp[i]
+    db.commit()
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
