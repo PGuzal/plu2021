@@ -49,5 +49,5 @@ async def put_suppliers(id:PositiveInt,data:schemas.Supplier2,db: Session = Depe
     db_supplier = crud.get_supplier(db, id)
     if db_supplier is None:
         raise HTTPException(status_code=404, detail="Supplier not found")
-    #return db_supplier
-    return crud.update_supplier(db,data,id)
+    return db_supplier
+    #return crud.update_supplier(db,data,id)
