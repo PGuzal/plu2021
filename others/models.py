@@ -1,3 +1,4 @@
+from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column,
     Date,
@@ -25,7 +26,7 @@ class Category(Base):
     Description = Column(Text)
     Picture = Column(LargeBinary)
 
-    product = relationship('Product', back_populates='category')
+    product_to_categories = relationship('Product', back_populates='categories_to_prod')
 
 class Customercustomerdemo(Base):
     __tablename__ = "customercustomerdemo"
@@ -130,7 +131,7 @@ class Product(Base):
     ReorderLevel = Column(SmallInteger)
     Discontinued = Column(Integer, nullable=False)
 
-    category = relationship('Category', back_populates='product')
+    categories_to_prod = relationship('Category', back_populates='product_to_categories')
 
 
 class Region(Base):
