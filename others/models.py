@@ -158,7 +158,7 @@ class ShippersTmp(Base):
 class Supplier(Base):
     __tablename__ = "suppliers"
 
-    SupplierID = Column(SmallInteger, primary_key=True)
+    SupplierID = Column(SmallInteger, primary_key=True,index=True)
     CompanyName = Column(String(40), nullable=False)
     ContactName = Column(String(30))
     ContactTitle = Column(String(30))
