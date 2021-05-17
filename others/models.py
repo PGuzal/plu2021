@@ -18,17 +18,6 @@ from sqlalchemy.sql.sqltypes import NullType
 Base = declarative_base()
 metadata = Base.metadata
 
-
-class Category(Base):
-    __tablename__ = "categories"
-
-    CategoryID = Column(SmallInteger, primary_key=True)
-    CategoryName = Column(String(15), nullable=False)
-    Description = Column(Text)
-    Picture = Column(LargeBinary)
-
-    product_to_categories = relationship('Product', back_populates='categories_to_prod')
-
 class Customercustomerdemo(Base):
     __tablename__ = "customercustomerdemo"
 
@@ -118,10 +107,20 @@ class Order(Base):
     ShipCountry = Column(String(15))
 
 
+class Category(Base):
+    __tablename__ = "categories"
+
+    CategoryID = Column(SmallInteger, primary_key=True, index=True)
+    CategoryName = Column(String(15), nullable=False)
+    Description = Column(Text)
+    Picture = Column(LargeBinary)
+
+    product_to_categories = relationship('Product', back_populates='categories_to_prod')
+
 class Product(Base):
     __tablename__ = "products"
 
-    ProductID = Column(SmallInteger, primary_key=True)
+    ProductID = Column(SmallInteger, primary_key=True, index=True)
     ProductName = Column(String(40), nullable=False)
     SupplierID = Column(SmallInteger)
     CategoryID = Column(SmallInteger, ForeignKey('categories.CategoryID'))

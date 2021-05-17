@@ -22,5 +22,5 @@ def get_supplier(db: Session, id: int):
 
 def get_product(db: Session, id: int):
     return (
-        db.query(models.Product).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).first()
+        db.query(models.Product).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).all()
     )
