@@ -44,6 +44,6 @@ async def get_product(id: PositiveInt, db: Session = Depends(get_db)):
 async def get_suppliers(data:schemas.Supp_post,db: Session = Depends(get_db)):
     return crud.make_supplier(db,data)
 
-@router.put("/suppliers/{id}")
-async def get_suppliers(id:id,data:schemas.Supplier2,db: Session = Depends(get_db)):
-    return crud.update_supplier(db,data,id)
+# @router.put("/suppliers/{id}")
+# async def get_suppliers(id:id,data:schemas.Supplier2,db: Session = Depends(get_db)):
+    # return crud.update_supplier(db,data,id)
