@@ -35,8 +35,8 @@ class Supplier2(BaseModel):
         orm_mode = True
 
 class CategoryData(BaseModel):
-    CategoryID:Optional[constr(max_length=30)]
-    CategoryName:Optional[constr(max_length=30)]
+    CategoryID:PositiveInt
+    CategoryName:Optional[constr(max_length=15)]
 
     class Config:
         orm_mode = True
@@ -45,7 +45,7 @@ class Prod_supl(BaseModel):
     ProductID: PositiveInt
     ProductName: Optional[constr(max_length=40)]
     ContactName: Optional[constr(max_length=30)]
-    Category: List[CategoryData]
+    Category: List[CategoryData]={}
     Discontinued: Optional[constr(max_length=30)]
 
     class Config:
