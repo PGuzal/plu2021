@@ -19,7 +19,7 @@ class Supplier(BaseModel):
 
 class Supplier2(BaseModel):
     SupplierID: PositiveInt
-    CompanyName: Optional[constr(max_length=40)]
+    CompanyName: constr(max_length=40)
     ContactName: Optional[constr(max_length=30)]
     ContactTitle: Optional[constr(max_length=30)]
     Address: Optional[constr(max_length=60)]
@@ -45,16 +45,23 @@ class Prod_supl(BaseModel):
     ProductID: PositiveInt
     ProductName: Optional[constr(max_length=40)]
     ContactName: Optional[constr(max_length=30)]
-    #Category: List[CategoryData(CategoryID = CategoryID)]
-    ContactName:Optional[constr(max_length=30)]
-    CategoryID:Optional[constr(max_length=30)]
+    Category: List[CategoryData(CategoryID = CategoryID)]]
     CategoryName:Optional[constr(max_length=30)]
     Discontinued: Optional[constr(max_length=30)]
 
     class Config:
         orm_mode = True
 
+class Supp_post(BaseModel):
+    CompanyName: Optional[constr(max_length=40)]
+    ContactName: Optional[constr(max_length=30)]
+    ContactTitle: Optional[constr(max_length=30)]
+    Address: Optional[constr(max_length=60)]
+    City: Optional[constr(max_length=15)]
+    PostalCode: Optional[constr(max_length=10)]
+    Country: Optional[constr(max_length=15)]
+    Phone: Optional[constr(max_length=24)]
 
-
-
+    class Config:
+        orm_mode = True
 

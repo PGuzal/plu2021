@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import PositiveInt
 from sqlalchemy.orm import Session
 
@@ -39,3 +39,7 @@ async def get_product(id: PositiveInt, db: Session = Depends(get_db)):
     if db_prod is None:
         raise HTTPException(status_code=404, detail="Supplier not found")
     return db_prod
+
+@router.post("/suppliers",response_model=List[schemas.Supplier],status_code=status.HTTP_201_CREATED)
+async def get_suppliers(data:schemas.Supp_post,db: Session = Depends(get_db)):
+    return crud.make_suppliers(db,data)

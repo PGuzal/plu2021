@@ -122,7 +122,7 @@ class Product(Base):
 
     ProductID = Column(SmallInteger, primary_key=True, index=True)
     ProductName = Column(String(40), nullable=False)
-    SupplierID = Column(SmallInteger,ForeignKey('suppliers.SupplierID'))
+    SupplierID = Column(SmallInteger,ForeignKey('categories.CategoryID'))
     CategoryID = Column(SmallInteger, ForeignKey('categories.CategoryID'))
     QuantityPerUnit = Column(String(20))
     UnitPrice = Column(Float)
