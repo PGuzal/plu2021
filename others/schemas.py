@@ -53,7 +53,6 @@ class Prod_supl(BaseModel):
         orm_mode = True
 
 class Supp_post(BaseModel):
-    SupplierID: int
     CompanyName: Optional[constr(max_length=40)]
     ContactName: Optional[constr(max_length=30)]
     ContactTitle: Optional[constr(max_length=30)]
