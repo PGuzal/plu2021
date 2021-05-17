@@ -45,7 +45,7 @@ class Prod_supl(BaseModel):
     ProductID: PositiveInt
     ProductName: Optional[constr(max_length=40)]
     ContactName: Optional[constr(max_length=30)]
-    Category: List[CategoryData(CategoryID = CategoryID)]]
+    Category: List[CategoryData]
     CategoryName:Optional[constr(max_length=30)]
     Discontinued: Optional[constr(max_length=30)]
 
