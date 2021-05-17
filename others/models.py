@@ -122,7 +122,7 @@ class Product(Base):
 
     ProductID = Column(SmallInteger, primary_key=True, index=True)
     ProductName = Column(String(40), nullable=False)
-    SupplierID = Column(SmallInteger)
+    SupplierID = Column(SmallInteger,ForeignKey('suppliers.SupplierID'))
     CategoryID = Column(SmallInteger, ForeignKey('categories.CategoryID'))
     QuantityPerUnit = Column(String(20))
     UnitPrice = Column(Float)
@@ -132,6 +132,7 @@ class Product(Base):
     Discontinued = Column(Integer, nullable=False)
 
     categories_to_prod = relationship('Category', back_populates='product_to_categories')
+    suppliers_to_prod = relationship('Supplier', back_populates='product_to_suppliers')
 
 
 class Region(Base):
@@ -173,6 +174,7 @@ class Supplier(Base):
     Fax = Column(String(24))
     HomePage = Column(Text)
 
+    product_to_suppliers = relationship('Product', back_populates='suppliers_to_prod')
 
 class Territory(Base):
     __tablename__ = "territories"
