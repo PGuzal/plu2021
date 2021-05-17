@@ -115,15 +115,14 @@ class Category(Base):
     Description = Column(Text)
     Picture = Column(LargeBinary)
 
-    product_to_categories = relationship('Product', back_populates='categories_to_prod')
 
 class Product(Base):
     __tablename__ = "products"
 
     ProductID = Column(SmallInteger, primary_key=True, index=True)
     ProductName = Column(String(40), nullable=False)
-    SupplierID = Column(SmallInteger,ForeignKey('categories.CategoryID'))
-    CategoryID = Column(SmallInteger, ForeignKey('categories.CategoryID'))
+    SupplierID = Column(SmallInteger)
+    CategoryID = Column(SmallInteger)
     QuantityPerUnit = Column(String(20))
     UnitPrice = Column(Float)
     UnitsInStock = Column(SmallInteger)
@@ -131,8 +130,6 @@ class Product(Base):
     ReorderLevel = Column(SmallInteger)
     Discontinued = Column(Integer, nullable=False)
 
-    categories_to_prod = relationship('Category', back_populates='product_to_categories')
-    suppliers_to_prod = relationship('Supplier', back_populates='product_to_suppliers')
 
 
 class Region(Base):
@@ -174,7 +171,6 @@ class Supplier(Base):
     Fax = Column(String(24))
     HomePage = Column(Text)
 
-    product_to_suppliers = relationship('Product', back_populates='suppliers_to_prod')
 
 class Territory(Base):
     __tablename__ = "territories"
