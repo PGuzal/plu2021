@@ -21,3 +21,7 @@ async def get_shipper(shipper_id: PositiveInt, db: Session = Depends(get_db)):
 @router.get("/shippers", response_model=List[schemas.Shipper])
 async def get_shippers(db: Session = Depends(get_db)):
     return crud.get_shippers(db)
+
+@router.get("/suppliers")
+async def get_suppliers(db: Session = Depends(get_db)):
+    return crud.get_suppliers(db)
