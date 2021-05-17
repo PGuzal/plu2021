@@ -11,7 +11,7 @@ class Shipper(BaseModel):
 
 class Supplier(BaseModel):
     SupplierID: PositiveInt
-    CompanyName: constr(max_length=40)
+    CompanyName: Optional[constr(max_length=60)]
 
     class Config:
         orm_mode = True

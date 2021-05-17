@@ -17,6 +17,6 @@ def get_suppliers(db: Session):
 
 def get_suppliers(db: Session, id: int):
     return (
-        db.query(models.Shipper).filter(models.Shipper.SupplierID == id).first()
+        db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
     )
 
