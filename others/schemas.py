@@ -34,15 +34,24 @@ class Supplier2(BaseModel):
     class Config:
         orm_mode = True
 
+class CategoryData(BaseModel):
+    CategoryID:Optional[Integer]
+    CategoryName:Optional[constr(max_length=30)]
+
+    class Config:
+        orm_mode = True
+        
 class Prod_supl(BaseModel):
     ProductID: PositiveInt
     ProductName: Optional[constr(max_length=40)]
     ContactName: Optional[constr(max_length=30)]
-    CategoryID:Optional[Integer]
-    CategoryName:Optional[constr(max_length=30)]
-    Category: List[CategoryID, CategoryName]
+    Category: List[CategoryData] = {}
     Discontinued: Optional[Integer]
-    
+
     class Config:
         orm_mode = True
+
+
+
+
 
