@@ -34,5 +34,13 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
     db.add(db_supp)
     db.commit()
     db.refresh(db_supp)
-    print()
+    return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
+
+def update_supplier(db: Session,supp:schemas.Supplier2,id:id):
+    supp_db = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
+    supp = dict(supp)
+    key = [i for i in supp.keys()]
+    for i in key:
+        supp_db.i = supp[i]
+    db.commit()
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
