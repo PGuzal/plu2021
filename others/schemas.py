@@ -1,5 +1,6 @@
+from sqlalchemy.sql.sqltypes import Integer
 from pydantic import BaseModel, PositiveInt, constr
-from typing import Optional
+from typing import Optional, List
 
 class Shipper(BaseModel):
     ShipperID: PositiveInt
@@ -30,6 +31,18 @@ class Supplier2(BaseModel):
     Fax: Optional[constr(max_length=24)]
     HomePage: Optional[str]
 
+    class Config:
+        orm_mode = True
+
+class Prod_supl(BaseModel):
+    ProductID: PositiveInt
+    ProductName: Optional[constr(max_length=40)]
+    ContactName: Optional[constr(max_length=30)]
+    CategoryID:Optional[Integer]
+    CategoryName:Optional[constr(max_length=30)]
+    Category: List[CategoryID, CategoryName]
+    Discontinued: Optional[Integer]
+    
     class Config:
         orm_mode = True
 
