@@ -35,7 +35,6 @@ class Supplier2(BaseModel):
         orm_mode = True
 
 class CategoryData(BaseModel):
-    id: int
     CategoryID:PositiveInt
     CategoryName:Optional[constr(max_length=15)]
 
