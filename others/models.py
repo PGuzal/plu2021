@@ -10,6 +10,7 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import NullType
 
 Base = declarative_base()
@@ -24,7 +25,7 @@ class Category(Base):
     Description = Column(Text)
     Picture = Column(LargeBinary)
 
-
+    products = relationship('Product', back_populates='category')
 class Customercustomerdemo(Base):
     __tablename__ = "customercustomerdemo"
 
@@ -127,6 +128,8 @@ class Product(Base):
     UnitsOnOrder = Column(SmallInteger)
     ReorderLevel = Column(SmallInteger)
     Discontinued = Column(Integer, nullable=False)
+
+    suplier = relationship('Supplier', back_populates='products')
 
 
 class Region(Base):
