@@ -38,7 +38,8 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
 
 def update_supplier(db: Session,supp:schemas.Supplier2,id:id):
     supp_db = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
-    key = [i for i,j in zip(supp.keys(),supp.values()) if j is not None]
+    supp_new = dict(supp)
+    key = [i for i,j in zip(supp_new.keys(),supp_new.values()) if j is not None]
     for i in key:
         supp_db.globals()['%s' % i] = supp[i]
     db.commit()
