@@ -25,7 +25,8 @@ class Category(Base):
     Description = Column(Text)
     Picture = Column(LargeBinary)
 
-    products = relationship('Product', back_populates='category')
+    product = relationship('Product', back_populates='category')
+
 class Customercustomerdemo(Base):
     __tablename__ = "customercustomerdemo"
 
@@ -129,7 +130,7 @@ class Product(Base):
     ReorderLevel = Column(SmallInteger)
     Discontinued = Column(Integer, nullable=False)
 
-    suplier = relationship('Supplier', back_populates='products')
+    category = relationship('Category', back_populates='product')
 
 
 class Region(Base):
