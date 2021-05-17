@@ -33,5 +33,4 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
     db.add(db_supp)
     db.commit()
     db.refresh(db_supp)
-    index  = db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
-    return (get_supplier(db,index))
+    return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
