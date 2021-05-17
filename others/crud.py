@@ -41,6 +41,6 @@ def update_supplier(db: Session,supp:schemas.Supplier2,id:id):
     supp = dict(supp)
     key = [i for i in supp.keys()]
     for i in key:
-        supp_db.i = supp[i]
+        supp_db.globals()['%s' % i] = supp[i]
     db.commit()
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
