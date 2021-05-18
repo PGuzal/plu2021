@@ -42,9 +42,8 @@ def update_supplier(db: Session,supp:schemas.Supplier2,id:int):
     for i,j in supp_new.items():
         update_data[i] = j
     data = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
-    new_data = data.update().where(data.SupplierID==id).update(**update_data,synchronize_session=False)
-    #db.query().filter(models.Supplier.SupplierID == id).update(**update_data,synchronize_session=False)
-    db.executen(new_data)
+    #new_data = data.update().where(data.SupplierID==id).values(**update_data)
+    db.query().filter(models.Supplier.SupplierID == id).update({models.Supplier.CompanyName:update_data['CompanyName']},synchronize_session=False)
     db.commit()
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first(), update_data
 
