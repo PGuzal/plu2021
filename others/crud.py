@@ -45,7 +45,6 @@ def update_supplier(db: Session,supp:schemas.Supplier3,id:int):
     db.add(data)
     db.commit()
     db.refresh(data)
-    return db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
 
 def delete_supp(db: Session, id: int):
     db.query(models.Supplier).filter(models.Supplier.SupplierID == id).delete()
