@@ -42,6 +42,7 @@ def update_supplier(db: Session,supp:schemas.Supplier2,id:id):
     update_data = {}
     for i,j in supp_new.items():
         update_data[i] = j
+    print(update_data)
     db.query(models.Supplier).filter(models.Supplier.SupplierID == id).update(update_data,synchronize_session=False)
     db.execute(update)
     db.commit()
