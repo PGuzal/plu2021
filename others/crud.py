@@ -25,7 +25,7 @@ def get_supplier(db: Session, id: int):
 def get_product(db: Session, id: int):
     return (
         #db.query(models.Product).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).all()
-        db.query(models.Product,models.Category.CategoryID,models.Category.CategoryName).join(models.Category, models.Product.CategoryID == models.Category.CategoryID).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).all()
+        db.query(models.Product.ProductID,models.Category.CategoryName).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).all()
     )
 
 
@@ -42,8 +42,8 @@ def update_supplier(db: Session,supp:schemas.Supplier2,id:id):
     update_data = {}
     for i,j in supp_new.items():
         update_data[i] = j
-    print(update_data)
-    db.query(models.Supplier).filter(models.Supplier.SupplierID == id).update(update_data,synchronize_session=False)
-    db.execute(update)
-    db.commit()
-    return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
+    # db.query(models.Supplier).filter(models.Supplier.SupplierID == id).update(update_data,synchronize_session=False)
+    # db.execute(update)
+    # db.commit()
+    # 
+    return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first(), update_data

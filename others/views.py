@@ -3,12 +3,13 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import PositiveInt
 from sqlalchemy.orm import Session
+import logging
 
 from . import crud, schemas
 from .database import get_db
 
 router = APIRouter()
-
+logger = logging.getLogger("api")
 
 @router.get("/shippers/{shipper_id}", response_model=schemas.Shipper)
 async def get_shipper(shipper_id: PositiveInt, db: Session = Depends(get_db)):
@@ -42,11 +43,13 @@ async def get_product(id: PositiveInt, db: Session = Depends(get_db)):
 
 @router.post("/suppliers",status_code=status.HTTP_201_CREATED)
 async def get_suppliers(data:schemas.Supp_post,db: Session = Depends(get_db)):
-    return crud.make_supplier(db,data)
+    data = crud.make_supplier(db,data)
+    return [{"ProductID": x['ProductID'], 'ProductName':f"{x['ProductName']}",'Category':{'Category':x[' CategoryID'],'CategoryName':f"{x['CategoryNam']}"},'Discontinued':x['Discontinued'] } for x in data]
 
 @router.put("/suppliers/{id}")
 async def put_suppliers(id:PositiveInt,data:schemas.Supplier3, db: Session = Depends(get_db)):
     db_supplier = crud.get_supplier(db, id)
     if db_supplier is None:
         raise HTTPException(status_code=404, detail="Supplier not found")
-    return crud.update_supplier(db,data,id)
+    data, value = crud.update_supplier(db,data,id)
+    #return 
