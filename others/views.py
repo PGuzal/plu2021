@@ -43,9 +43,8 @@ async def get_product(id: PositiveInt, db: Session = Depends(get_db)):
 
 @router.post("/suppliers",status_code=status.HTTP_201_CREATED)
 async def get_suppliers(data:schemas.Supp_post,db: Session = Depends(get_db)):
-    return crud.make_supplier(db,data)
-    #data = crud.make_supplier(db,data)
-    #return [{"ProductID": x['ProductID'], 'ProductName':f"{x['ProductName']}",'Category':{'Category':x[' CategoryID'],'CategoryName':f"{x['CategoryNam']}"},'Discontinued':x['Discontinued'] } for x in data]
+    data = crud.make_supplier(db,data)
+    return [{"ProductID": x['ProductID'], 'ProductName':f"{x['ProductName']}",'Category':{'Category':x[' CategoryID'],'CategoryName':f"{x['CategoryNam']}"},'Discontinued':x['Discontinued'] } for x in data]
 
 @router.put("/suppliers/{id}")
 async def put_suppliers(id:PositiveInt,data:schemas.Supplier3, db: Session = Depends(get_db)):
