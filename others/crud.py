@@ -38,7 +38,6 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
 
 def update_supplier(db: Session,supp:schemas.Supplier2,id:int):
     supp_new = dict(supp)
-    update_data = {}
     data = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
     for i,j in supp_new.items():
         if j:
@@ -46,7 +45,7 @@ def update_supplier(db: Session,supp:schemas.Supplier2,id:int):
     db.add(data)
     db.commit()
     db.refresh(data)
-    return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first(), update_data
+    return db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
 
 def delete_supp(db: Session, id: int):
     db.query(models.Supplier).filter(models.Supplier.SupplierID == id).delete()
