@@ -36,7 +36,7 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
     db.refresh(db_supp)
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
 
-def update_supplier(db: Session,supp:schemas.Supplier2,id:int):
+def update_supplier(db: Session,supp:schemas.Supplier3,id:int):
     supp_new = dict(supp)
     data = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
     for i,j in supp_new.items():
