@@ -50,4 +50,11 @@ async def put_suppliers(id:PositiveInt,data:schemas.Supplier3, db: Session = Dep
     db_supplier = crud.get_supplier(db, id)
     if db_supplier is None:
         raise HTTPException(status_code=404, detail="Supplier not found")
-    return crud.update_supplier(db,data,id)
+    return crud.update_supplier(db,data,id,db_supplier)
+
+@router.delete("/suppliers/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_suppliers(id: PositiveInt, db: Session = Depends(get_db)):
+    db_supp= crud.get_supplier(db, id)
+    if db_supp is None or bool(db_supp)==False:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    crud.delete_suppliers(db, id)

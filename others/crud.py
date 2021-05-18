@@ -40,8 +40,14 @@ def update_supplier(db: Session,supp:schemas.Supplier2,id:int):
     supp_new = dict(supp)
     update_data = {}
     for i,j in supp_new.items():
-        update_data['models.Supplier.'+i] = j
-    db.query(models.Supplier).filter(models.Supplier.SupplierID == id).update(**update_data,synchronize_session=False)
-    db.execute(update)
+        update_data[i] = j
+    data = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
+    new_data = data.update().where(data.SupplierID==id).update(**update_data,synchronize_session=False)
+    #db.query().filter(models.Supplier.SupplierID == id).update(**update_data,synchronize_session=False)
+    db.executen(new_data)
     db.commit()
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first(), update_data
+
+def delete_supp(db: Session, id: int):
+    db.query(models.Supplier).filter(models.Supplier.SupplierID == id).delete()
+    db.commit()
