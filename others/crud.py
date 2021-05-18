@@ -39,12 +39,13 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
 def update_supplier(db: Session,supp:schemas.Supplier2,id:int):
     supp_new = dict(supp)
     update_data = {}
-    for i,j in supp_new.items():
-        update_data[i] = j
     data = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
-    #new_data = data.update().where(data.SupplierID==id).values(**update_data)
-    db.query().filter(models.Supplier.SupplierID == id).update({models.Supplier.CompanyName:update_data['CompanyName']},synchronize_session=False)
+    for i,j in supp_new.items():
+        if j:
+            setattr(data, i, j) 
+    db.add(data)
     db.commit()
+    db.refresh(data)
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first(), update_data
 
 def delete_supp(db: Session, id: int):
