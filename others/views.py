@@ -36,15 +36,14 @@ async def get_supplier(id: PositiveInt, db: Session = Depends(get_db)):
 
 @router.get("/suppliers/{id}/products")
 async def get_product(id: PositiveInt, db: Session = Depends(get_db)):
-    db_prod = crud.get_product(db, id)
-    if db_prod is None:
+    data = crud.get_product(db, id)
+    if data is None:
         raise HTTPException(status_code=404, detail="Supplier not found")
-    return db_prod
+    return [{"ProductID": x['ProductID'], 'ProductName':f"{x['ProductName']}",'Category':{'Category':x[' CategoryID'],'CategoryName':f"{x['CategoryNam']}"},'Discontinued':x['Discontinued'] } for x in data]
 
 @router.post("/suppliers",status_code=status.HTTP_201_CREATED)
 async def get_suppliers(data:schemas.Supp_post,db: Session = Depends(get_db)):
-    data = crud.make_supplier(db,data)
-    return [{"ProductID": x['ProductID'], 'ProductName':f"{x['ProductName']}",'Category':{'Category':x[' CategoryID'],'CategoryName':f"{x['CategoryNam']}"},'Discontinued':x['Discontinued'] } for x in data]
+    return crud.make_supplier(db,data)
 
 @router.put("/suppliers/{id}")
 async def put_suppliers(id:PositiveInt,data:schemas.Supplier3, db: Session = Depends(get_db)):
@@ -52,4 +51,4 @@ async def put_suppliers(id:PositiveInt,data:schemas.Supplier3, db: Session = Dep
     if db_supplier is None:
         raise HTTPException(status_code=404, detail="Supplier not found")
     data, value = crud.update_supplier(db,data,id)
-    #return 
+    return data 
