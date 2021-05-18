@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import update
 
 from . import models, schemas
 
@@ -24,7 +25,7 @@ def get_supplier(db: Session, id: int):
 def get_product(db: Session, id: int):
     return (
         #db.query(models.Product).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).all()
-        #db.query(models.Product,models.Category.CategoryID,models.Category.CategoryName).join(models.Category, models.Product.CategoryID == models.Category.CategoryID).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).all()
+        db.query(models.Product,models.Category.CategoryID,models.Category.CategoryName).join(models.Category, models.Product.CategoryID == models.Category.CategoryID).filter(models.Product.SupplierID == id).order_by(models.Product.ProductID.desc()).all()
     )
 
 
@@ -37,10 +38,11 @@ def make_supplier(db: Session,supp:schemas.Supp_post):
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
 
 def update_supplier(db: Session,supp:schemas.Supplier2,id:id):
-    supp_db = db.query(models.Supplier).filter(models.Supplier.SupplierID == id).first()
     supp_new = dict(supp)
-    key = [i for i,j in zip(supp_new.keys(),supp_new.values()) if j is not None]
-    for i in key:
-        supp_db.globals()['%s' % i] = supp_new[i]
+    update_data = {}
+    for i,j in supp_new.items():
+        update_data[i] = j
+    db.query(models.Supplier).filter(models.Supplier.SupplierID == id).update(update_data,synchronize_session=False)
+    db.execute(update)
     db.commit()
     return db.query(models.Supplier).order_by(models.Supplier.SupplierID.desc()).first()
